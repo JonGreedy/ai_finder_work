@@ -5,7 +5,7 @@ from services.company_service import CompanyService
 from database.db import Base, engine
 
 API_URL = "https://api.finder.work/api/v2/vacancies/"
-LIMIT = 2000
+LIMIT = 3500
 
 params = {
     'location': 'all',

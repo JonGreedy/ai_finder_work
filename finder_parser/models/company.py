@@ -1,6 +1,6 @@
 import json
 
-from ..database.db import Base
+from finder_parser.database.db import Base
 
 from sqlalchemy import Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import relationship
@@ -26,7 +26,9 @@ class Company(Base):
         contacts = json.loads(self.contacts) if self.contacts else []
         phone = next((item['value'] for item in contacts if item['type'] == 'phone'), None)
         email = next((item['value'] for item in contacts if item['type'] == 'email'), None)
-        return {'phone': phone, 'email': email}
+        other = next((item['value'] for item in contacts if item['type'] == 'other'), None)
+        telegram = next((item['value'] for item in contacts if item['type'] == 'telegram'), None)
+        return {'phone': phone, 'email': email, 'other': other, 'telegram': telegram}
 
 
     def __repr__(self):

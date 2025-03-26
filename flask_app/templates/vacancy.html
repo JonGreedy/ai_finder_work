@@ -7,10 +7,28 @@
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title"><a href="https://finder.work/vacancies/{{vacancy.vacancy_id}}"
-                        class="text-primary font-weight-bold">{{ vacancy.title }}</a></h3>
-                <p class="card-text font-weight-bold">{{ vacancy.salary_from }} - {{ vacancy.salary_to }} {{
-                    vacancy.currency_symbol }}</p>
+                <h3 class="card-title">
+                    <a href="https://finder.work/vacancies/{{vacancy.vacancy_id}}" class="text-primary font-weight-bold">
+                        {{ vacancy.title }}
+                    </a>
+                </h3>
+                {% if vacancy.salary_to or vacancy.salary_from %} 
+                    <p class="card-text font-weight-bold mt-3">
+                        {% if vacancy.salary_from %}
+                            {{ '{:,.0f}'.format(vacancy.salary_from).replace(',', ' ') }}
+                        {% endif %}
+                        
+                        {% if vacancy.salary_from and vacancy.salary_to %}
+                            - 
+                        {% endif %}
+                        
+                        {% if vacancy.salary_to %} 
+                            {{ '{:,.0f}'.format(vacancy.salary_to).replace(',', ' ') }}
+                        {% endif %}
+                        
+                        {{ vacancy.currency_symbol }}
+                    </p>
+                {% endif %}
                 <p class="card-text text-muted">
                     <!-- {{ vacancy.locations_list | join(', ') }} -->
                     {% for location in vacancy.locations_list %}

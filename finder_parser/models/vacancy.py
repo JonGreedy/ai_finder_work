@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 
-from ..database.db import Base
+from finder_parser.database.db import Base
 
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
@@ -13,10 +13,10 @@ class Vacancy(Base):
     vacancy_id = Column(Integer, unique=True, nullable=False)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
-    salary_from = Column(Integer, nullable=True)
-    salary_to = Column(Integer, nullable=True)
+    salary_from = Column(Integer, nullable=True, default=0)
+    salary_to = Column(Integer, nullable=True, default=0)
     currency_symbol = Column(String, nullable=True)
-    employment_type = Column(String(50), nullable=True, default='')
+    employment_type = Column(String(50), nullable=True)
     distant_work = Column(Boolean, default=False)
     experience = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=datetime.now)

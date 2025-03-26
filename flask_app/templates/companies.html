@@ -23,25 +23,43 @@
 <div class="row">
     {% for company in companies %}
     <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">{{ company['title'] }}</h5>
-                <!-- Company Contacts -->
-                <ul class="list-unstyled mt-3">
-                    {% if company.phone %}
-                    <li class="mb-2">
-                        <i class="fas fa-phone"></i> {{ company.contacts_dict.phone }}
-                    </li>
-                    {% endif %}
-                    {% if company.contacts_dict.email %}
-                    <li class="mb-2">
-                        <i class="fas fa-envelope"></i> {{ company.contacts_dict.email }}
-                    </li>
-                    {% endif %}
-                </ul>
-                <a href="{{ url_for('company', company_id=company.company_id) }}" class="text-primary">View Details</a>
+        <a href="{{ url_for('company', company_id=company.company_id) }}" class="text-decoration-none text-dark stretched-link">
+            <div class="card h-100 hover-shadow" style="min-height: 150px;">
+                <div class="card-body">
+                    <h5 class="card-title text-primary font-weight-bold">
+                        <div>
+                            {% if company.logo %}
+                                <img class="img-fluid rounded-circle mr-1" src="{{ company.logo }}" alt="{{ company.title }}" width="32" height="32">
+                            {% endif %}
+                            <span>{{ company.title }}</span>
+                        </div>
+                    </h5>
+                    <!-- Company Contacts -->
+                    <ul class="list-unstyled mt-3 text-muted">
+                        {% if company.contacts_dict.phone %}
+                        <li class="mb-2">
+                            <i class="fa-regular fa-phone"></i> {{ company.contacts_dict.phone }}
+                        </li>
+                        {% endif %}
+                        {% if company.contacts_dict.email %}
+                        <li class="mb-2">
+                            <i class="fa-regular fa-envelope"></i> {{ company.contacts_dict.email }}
+                        </li>
+                        {% endif %}
+                        {% if company.contacts_dict.other %}
+                        <li class="mb-2">
+                            <i class="fa-regular fa-bookmark"></i> {{ company.contacts_dict.other }}
+                        </li>
+                        {% endif %}
+                        {% if company.contacts_dict.other %}
+                        <li class="mb-2">
+                            <i class="fa-regular fa-feather"></i> {{ company.contacts_dict.telegram }}
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
     {% endfor %}
 </div>
@@ -55,10 +73,11 @@
                 <span aria-hidden="true">&laquo;&laquo;</span>
             </a>
         </li>
-        
+
         <!-- Кнопка "Назад" -->
         <li class="page-item {% if page == 1 %}disabled{% endif %}">
-            <a class="page-link" href="{{ url_for('companies', page=page-1, per_page=per_page) }}" aria-label="Previous">
+            <a class="page-link" href="{{ url_for('companies', page=page-1, per_page=per_page) }}"
+                aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
             </a>
         </li>
@@ -66,30 +85,28 @@
         <!-- Динамический диапазон страниц -->
         {% set start_page = [1, page-2]|max %}
         {% set end_page = [total_pages, start_page+4]|min %}
-        
-        {% if end_page - start_page < 4 %}
-            {% set start_page = [1, end_page-4]|max %}
-        {% endif %}
 
-        {% for p in range(start_page, end_page+1) %}
-            <li class="page-item {% if p == page %}active{% endif %}">
-                <a class="page-link" href="{{ url_for('companies', page=p, per_page=per_page) }}">{{ p }}</a>
+        {% if end_page - start_page < 4 %} {% set start_page=[1, end_page-4]|max %} {% endif %} {% for p in
+            range(start_page, end_page+1) %} <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('companies', page=p, per_page=per_page) }}">{{ p }}</a>
             </li>
-        {% endfor %}
+            {% endfor %}
 
-        <!-- Кнопка "Вперед" -->
-        <li class="page-item {% if page == total_pages %}disabled{% endif %}">
-            <a class="page-link" href="{{ url_for('companies', page=page+1, per_page=per_page) }}" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-        
-        <!-- Кнопка "Последняя" -->
-        <li class="page-item {% if page == total_pages %}disabled{% endif %}">
-            <a class="page-link" href="{{ url_for('companies', page=total_pages, per_page=per_page) }}" aria-label="Last">
-                <span aria-hidden="true">&raquo;&raquo;</span>
-            </a>
-        </li>
+            <!-- Кнопка "Вперед" -->
+            <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('companies', page=page+1, per_page=per_page) }}"
+                    aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+
+            <!-- Кнопка "Последняя" -->
+            <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('companies', page=total_pages, per_page=per_page) }}"
+                    aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
     </ul>
 </nav>
 <!-- Информация о странице -->

@@ -17,17 +17,11 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
 <ul class="navbar-nav">
-    <li class="nav-item active">
-        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+    <li class="nav-item {% if current_page == 'vacancies' %}active{% endif %}">
+        <a class="nav-link" href="/">Vacancies {% if current_page == 'vacancies' %}<span class="sr-only">(current)</span>{% endif %}</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/companies">Companies</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/about">About</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/contact">Contact</a>
+    <li class="nav-item {% if current_page == 'companies' %}active{% endif %}">
+        <a class="nav-link" href="/companies">Companies {% if current_page == 'companies' %}<span class="sr-only">(current)</span>{% endif %}</a>
     </li>
 </ul>
         </div>
