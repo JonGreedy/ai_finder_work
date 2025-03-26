@@ -2,12 +2,11 @@ import json
 from typing import List, Dict
 from models.vacancy import Vacancy
 from database.db import get_db
-
+from datetime import datetime as dt
 
 class VacancyService:
     def __init__(self):
         self.db = next(get_db())
-
 
     def save_vacancies(self, vacancies: List[Dict]):
         for item in vacancies:
@@ -17,9 +16,7 @@ class VacancyService:
                 print(f"Вакансия с ID {item['vacancy_id']} уже существует, пропускаем.")
                 continue  # Пропускаем добавление, если вакансия уже существует
 
-            # Сериализуем сложные данные в JSON-строки
-            contacts_json = json.dumps(item['contacts'], ensure_ascii=False)
-            company_info_json = json.dumps(item['company_info'], ensure_ascii=False)
+            # Убедимся, что locations правильно сериализованы в JSON-строку
             locations_json = json.dumps(item['locations'], ensure_ascii=False)
 
             # Если вакансия не существует, добавляем её
@@ -30,11 +27,24 @@ class VacancyService:
                 salary_from=item['salary_from'],
                 salary_to=item['salary_to'],
                 currency_symbol=item['currency_symbol'],
-                contacts=contacts_json,
-                company_info=company_info_json,
-                locations=locations_json
+                employment_type=item.get('employment_type'),
+                distant_work=item.get('distant_work', False),
+                experience=item.get('experience'),
+                created_at=dt.fromisoformat(item['created_at'].replace('Z', '+00:00')),
+                publication_at=dt.fromisoformat(item['publication_at'].replace('Z', '+00:00')),
+
+                # pub_at = '2025-03-26T13:29:00.461Z'
+                # created_at = '2025-02-27T13:14:29.461Z'
+
+                # # Формат для разбора
+                
+                # pub_datetime = datetime.strptime(pub_at, iso_format)
+                # created_datetime = datetime.strptime(created_at, iso_format)
+
+                locations=locations_json,
+                company_id=item['company_id']
             )
             self.db.add(vacancy)
             # print(f"Вакансия с ID {item['vacancy_id']} добавлена.")
-        
+
         self.db.commit()

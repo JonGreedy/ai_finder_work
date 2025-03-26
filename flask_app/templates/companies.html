@@ -25,21 +25,10 @@
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">{{ company.company_info_dict['title'] }}</h5>
-
-                <!-- Company Description Spoiler -->
-                <button class="btn btn-link" type="button" data-toggle="collapse"
-                    data-target="#companyDescription{{ company.id }}" aria-expanded="false"
-                    aria-controls="companyDescription{{ company.id }}">
-                    Show Description
-                </button>
-                <div class="collapse" id="companyDescription{{ company.id }}">
-                    <p class="card-text">{{ company.company_info_dict['description'] | safe }}</p>
-                </div>
-
+                <h5 class="card-title">{{ company['title'] }}</h5>
                 <!-- Company Contacts -->
                 <ul class="list-unstyled mt-3">
-                    {% if company.contacts_dict.phone %}
+                    {% if company.phone %}
                     <li class="mb-2">
                         <i class="fas fa-phone"></i> {{ company.contacts_dict.phone }}
                     </li>
@@ -50,6 +39,7 @@
                     </li>
                     {% endif %}
                 </ul>
+                <a href="{{ url_for('company', company_id=company.company_id) }}" class="text-primary">View Details</a>
             </div>
         </div>
     </div>

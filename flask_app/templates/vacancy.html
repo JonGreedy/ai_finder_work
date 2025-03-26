@@ -7,44 +7,18 @@
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title"><a href="https://finder.work/vacancies/{{vacancy.vacancy_id}}"
-                        class="text-primary font-weight-bold">{{ vacancy.title }}</a></h5>
-                    <p class="card-text font-weight-bold">{{ vacancy.salary_from }} - {{ vacancy.salary_to }} {{
-                        vacancy.currency_symbol }}</p>
-                    <p class="card-text text-muted">
-                        <!-- {{ vacancy.locations_list | join(', ') }} -->
-                        {% for location in vacancy.locations_list %}
-                        {{ location.name }}
-                        {% endfor %}
-                    </p>
-                    <p class="card-text">{{ vacancy.description | safe }}</p>
-                    <ul class="list-unstyled mt-3">
-                        {% if vacancy.contacts_dict.phone %}
-                        <li class="mb-2">
-                            <i class="fas fa-phone"></i> {{ vacancy.contacts_dict.phone }}
-                        </li>
-                        {% endif %}
-                        {% if vacancy.contacts_dict.email %}
-                        <li class="mb-2">
-                            <i class="fas fa-envelope"></i> {{ vacancy.contacts_dict.email }}
-                        </li>
-                        {% endif %}
-                    </ul>
-                    <!-- Company Info Spoiler -->
-                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#companyInfo"
-                        aria-expanded="false" aria-controls="companyInfo">
-                        Show Company Info
-                    </button>
-                    <div class="collapse" id="companyInfo">
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li>
-                                        <h6 class="text-primary font-weight-bold">{{ vacancy.company_info_dict.title }}
-                </h2>
-                </li>
-                <li>{{ vacancy.company_info_dict.description | safe }}</li>
-                </ul>
+                <h3 class="card-title"><a href="https://finder.work/vacancies/{{vacancy.vacancy_id}}"
+                        class="text-primary font-weight-bold">{{ vacancy.title }}</a></h3>
+                <p class="card-text font-weight-bold">{{ vacancy.salary_from }} - {{ vacancy.salary_to }} {{
+                    vacancy.currency_symbol }}</p>
+                <p class="card-text text-muted">
+                    <!-- {{ vacancy.locations_list | join(', ') }} -->
+                    {% for location in vacancy.locations_list %}
+                    {{ location.name }}
+                    {% endfor %}
+                </p>
+                <p class="card-text">{{ vacancy.description | safe }}</p>
+
             </div>
         </div>
     </div>

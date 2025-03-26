@@ -1,6 +1,10 @@
-from sqlalchemy import Column, Integer, String, Text, JSON
-from ..database.db import Base
+from datetime import datetime
 import json
+
+from ..database.db import Base
+
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, DateTime
+from sqlalchemy.orm import relationship
 
 class Vacancy(Base):
     __tablename__ = 'vacancies'
@@ -12,22 +16,17 @@ class Vacancy(Base):
     salary_from = Column(Integer, nullable=True)
     salary_to = Column(Integer, nullable=True)
     currency_symbol = Column(String, nullable=True)
-    contacts = Column(String, nullable=True)  # Хранение контактов в формате JSON
-    @property
-    def contacts_dict(self):
-        contacts = json.loads(self.contacts) if self.contacts else []
-        phone = next((item['value'] for item in contacts if item['type'] == 'phone'), None)
-        email = next((item['value'] for item in contacts if item['type'] == 'email'), None)
-        return {'phone': phone, 'email': email}
-    company_info = Column(String, nullable=True)  # Хранение информации о компании в формате JSON
-    @property
-    def company_info_dict(self):
-        return json.loads(self.company_info) if self.company_info else {}
+    employment_type = Column(String(50), nullable=True, default='')
+    distant_work = Column(Boolean, default=False)
+    experience = Column(String(50), nullable=True)
+    created_at = Column(DateTime, default=datetime.now)
+    publication_at = Column(DateTime, default=datetime.now)
     locations = Column(String, nullable=True)  # Хранение местоположений в формате JSON
+    company_id = Column(Integer, ForeignKey('companies.company_id'))
+    company = relationship("Company", back_populates="vacancies")
+
     @property
     def locations_list(self):
-        # locations = json.loads(self.locations) if self.locations else []
-        # return [location['name'] for location in locations]
         return json.loads(self.locations) if self.locations else []
 
     def __repr__(self):

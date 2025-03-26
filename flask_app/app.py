@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from finder_parser.models.vacancy import Vacancy
+from finder_parser.models.company import Company
 from finder_parser.database.db import Base
 
 from math import ceil
@@ -10,24 +11,11 @@ from math import ceil
 app = Flask(__name__)
 
 # Database setup
-DATABASE_URL = 'sqlite:///finder_parser/database/vacancies.db'
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
+SQLALCHEMY_DATABASE_URL = "sqlite:///vacancies.db"
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+Session = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 session = Session()
-
-
-# @app.route('/')
-# def home():
-#     limit = request.args.get('limit', 'all', type=str)
-
-#     if limit == 'all':
-#         vacancies = session.query(Vacancy).all()
-#     else:
-#         per_page = int(limit)
-#         vacancies = session.query(Vacancy).limit(per_page).all()
-
-#     total_vacancies = session.query(Vacancy).count()
-#     return render_template('index.html', vacancies=vacancies, total_vacancies=total_vacancies)
 
 
 @app.route('/')
@@ -65,8 +53,8 @@ def companies():
     per_page = request.args.get('per_page', 10, type=int)
     offset = (page - 1) * per_page
     
-    companies = session.query(Vacancy).offset(offset).limit(per_page).all()
-    total_companies = session.query(Vacancy).count()
+    companies = session.query(Company).offset(offset).limit(per_page).all()
+    total_companies = session.query(Company).count()
     total_pages = ceil(total_companies / per_page)
     
     return render_template(
@@ -78,10 +66,14 @@ def companies():
         total_companies=total_companies
     )
 
-# @app.route('/companies')
-# def companies():
-#     companies = session.query(Vacancy).all()
-#     return render_template('companies.html', companies=companies)
+
+@app.route('/company/<int:company_id>')
+def company(company_id):
+    company = session.query(Company).filter_by(company_id=company_id).first()
+    if vacancy is None:
+        return "Company not found", 404
+    return render_template('company.html', company=company)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
