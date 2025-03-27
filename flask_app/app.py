@@ -13,6 +13,8 @@ app = Flask(__name__)
 
 # Database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///vacancies.db"
+# Database setup
+# SQLALCHEMY_DATABASE_URL = "sqlite:////home/jongreedy/ai_finder_work/vacancies.db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 Session = sessionmaker(autoflush=False, autocommit=False, bind=engine)
@@ -102,10 +104,9 @@ def home():
     vacancies = query.offset(offset).limit(per_page).all()
     total_vacancies = query.count()
     total_pages = (total_vacancies + per_page - 1) // per_page
-    
-    print(request.args)
-    
-    request_args=request.args
+
+
+    # print(request.args)
 
     return render_template(
         'index.html',
@@ -115,7 +116,7 @@ def home():
         total_pages=total_pages,
         total_vacancies=total_vacancies,
         current_page='vacancies',
-        request_args=request_args  # Передаем все параметры запроса в шаблон
+        request_args=request.args  # Передаем все параметры запроса в шаблон
     )
 
 # Остальные маршруты остаются без изменений

@@ -1,6 +1,6 @@
 import json
 
-from finder_parser.database.db import Base
+from ..database.db import Base
 
 from sqlalchemy import Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import relationship

@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 
-from finder_parser.database.db import Base
+from ..database.db import Base
 
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import relationship
