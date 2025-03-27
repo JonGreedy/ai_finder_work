@@ -9,7 +9,7 @@
             <div class="card-body">
                 <h3 class="card-title">
                     <a href="https://finder.work/vacancies/{{vacancy.vacancy_id}}" class="text-primary font-weight-bold">
-                        {{ vacancy.title }}
+                        {{ vacancy.title|capitalize }}
                     </a>
                 </h3>
                 {% if vacancy.salary_to or vacancy.salary_from %} 

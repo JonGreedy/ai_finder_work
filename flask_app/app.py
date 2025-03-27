@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for
-from sqlalchemy import create_engine, desc, asc, or_, and_
+from sqlalchemy import create_engine, desc, asc, or_, and_, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import nulls_last
 
@@ -18,12 +18,14 @@ engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread
 Session = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 session = Session()
 
-@app.route('/')
+
+@app.route('/', methods=['GET', 'POST'])
 def home():
     # Получаем параметры запроса
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
-    search = request.args.get('search', '')
+    search = request.args.get('search', '').strip()
+
     sort = request.args.get('sort', 'newest')  # По умолчанию сортируем по новым
     # Фильтры
     salary_from = request.args.get('salary_from', type=int)
@@ -39,7 +41,7 @@ def home():
 
     # Применяем поиск
     if search:
-        query = query.filter(Vacancy.title.ilike(f'%{search}%'))
+        query = query.filter(func.lower(Vacancy.title).contains(search.lower()))
 
     # Фильтр по удаленной работе
     if distant_work:
@@ -100,6 +102,10 @@ def home():
     vacancies = query.offset(offset).limit(per_page).all()
     total_vacancies = query.count()
     total_pages = (total_vacancies + per_page - 1) // per_page
+    
+    print(request.args)
+    
+    request_args=request.args
 
     return render_template(
         'index.html',
@@ -109,7 +115,7 @@ def home():
         total_pages=total_pages,
         total_vacancies=total_vacancies,
         current_page='vacancies',
-        request_args=request.args  # Передаем все параметры запроса в шаблон
+        request_args=request_args  # Передаем все параметры запроса в шаблон
     )
 
 # Остальные маршруты остаются без изменений
@@ -146,6 +152,7 @@ def company(company_id):
     if company is None:
         return "Company not found", 404
     return render_template('company.html', company=company, current_page='company')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
