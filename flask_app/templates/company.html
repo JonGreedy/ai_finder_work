@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}{{ company.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="">
+                <div class="">
+                    <h1>
+                        <div>
+                            {% if company.logo %}
+                            <img class="img-fluid rounded-circle mr-1" src="{{ company.logo }}"
+                                alt="{{ company.title }}" width="64" height="64">
+                            {% endif %}
+                            <a href="https://finder.work/companies/{{ company.company_id }}"
+                                class="text-primary font-weight-bold">{{ company.title }}</a>
+                        </div>
+                    </h1>
+                    <p class="card-text font-weight">{{ company.description | safe }}</p>
+                    <!-- <p class="card-text text-muted">{{ company.type }}</p> -->
+                    <!-- <p class="card-text text-muted">{{ company.contacts }}</p> -->
+                    <p class="list-unstyled mt-3 text-muted">
+                        {% if company.contacts_dict.phone %}
+                        <i class="fa-regular fa-phone"></i> {{ company.contacts_dict.phone }}
+                        {% endif %}
+                        {% if company.contacts_dict.email %}
+                        <i class="fa-regular fa-envelope"></i> {{ company.contacts_dict.email }}
+                        {% endif %}
+                        {% if company.contacts_dict.other %}
+                        <i class="fa-regular fa-bookmark"></i> {{ company.contacts_dict.other }}
+                        {% endif %}
+                        {% if company.contacts_dict.other %}
+                        <i class="fa-regular fa-feather"></i> {{ company.contacts_dict.telegram }}
+                        {% endif %}
+                    </p>
+                    <!-- <p class="card-text text-muted"> {{ company.tax_id }}</p>
+                    <p class="card-text text-muted"> {{ company.has_paid_vacancies }}</p> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="text-left">Вакансий: {{ company.vacancies|count }}</h5>
+    <div class="row">
+
+        {% for vacancy in company.vacancies %}
+        <div class="col-8 mb-4">
+            <div class="card hover-shadow">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{{ url_for('vacancy', vacancy_id=vacancy.vacancy_id) }}"
+                            class="text-primary font-weight-bold">
+                            {{ vacancy.title|capitalize }}
+                        </a>
+                    </h5>
+                    {% if vacancy.salary_to == 0 and vacancy.salary_from == 0 %}
+                    <p class="card-text font-weight-bold mt-3">По договоренности</p>
+                    {% endif %}
+                    {% if vacancy.salary_to or vacancy.salary_from %}
+                    <p class="card-text font-weight-bold mt-3">
+                        {% if vacancy.salary_from %}
+                        {{ '{:,.0f}'.format(vacancy.salary_from).replace(',', ' ') }}
+                        {% endif %}
+                        {% if vacancy.salary_from and vacancy.salary_to %}
+                        -
+                        {% endif %}
+                        {% if vacancy.salary_to %}
+                        {{ '{:,.0f}'.format(vacancy.salary_to).replace(',', ' ') }}
+                        {% endif %}
+                        {{ vacancy.currency_symbol }}
+                    </p>
+                    <p class="card-title text-primary">
+                    <div class="company-title">
+                        <a href="{{ url_for('company', company_id=company.company_id) }}">
+                            {% if company.logo %}
+                            <img class="img-fluid rounded-circle mr-1" src="{{ company.logo }}"
+                                alt="{{ company.title }}" width="32" height="32">
+                            {% else %}
+                            <i class="img-fluid rounded-circle mr-1 fa-regular fa-building"></i>
+                            {% endif %}
+                            <span>{{ company.title }}</span>
+                        </a>
+                    </div>
+                    </p>
+                    {% endif %}
+                    <p class="card-text text-muted">
+                        {{ vacancy.employment_type }} 
+                        {{ vacancy.distant_work }} 
+                        {{ vacancy.experience }}
+                    </p>
+                    <p>
+                        {% for location in vacancy.locations_list %}
+                        <span class="badge badge-pill badge-light">{{ location.name }}</span>
+                        {% endfor %}
+                    </p>
+                    <!-- <p class="card-text text-muted">{{ vacancy.publication_at }}</p> -->
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+{% endblock %}
