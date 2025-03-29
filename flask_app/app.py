@@ -1,29 +1,24 @@
-from flask import Flask, render_template, request, url_for
-from sqlalchemy import create_engine, desc, asc, or_, func, text
-from sqlalchemy.orm import sessionmaker
+from math import ceil
+
+from database.db import get_db
+from models.vacancy import Vacancy
+from models.company import Company
+
+from flask import Flask, render_template, request
+from sqlalchemy import desc, asc, or_, func
 from sqlalchemy.sql.expression import nulls_last
 
-from finder_parser.models.vacancy import Vacancy
-from finder_parser.models.company import Company
-from finder_parser.database.db import Base
-
-from math import ceil
 
 app = Flask(__name__)
 
 # Database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///vacancies.db"
-# Database setup
-# SQLALCHEMY_DATABASE_URL = "sqlite:////home/jongreedy/ai_finder_work/vacancies.db"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-Session = sessionmaker(autoflush=False, autocommit=False, bind=engine)
-session = Session()
+session = next(get_db())
 
 
 @app.route('/')
 def home():
     return render_template('index.html', current_page='home')
+
 
 @app.route('/vacancies')
 def vacancies():
@@ -50,12 +45,8 @@ def vacancies():
     if search:
         query = query.filter(func.lower(Vacancy.title).contains(search.lower()))
 
-    # if search_location:
-    #     query = query.filter(func.lower(Vacancy.locations).contains(search_location.lower()))
-
     if search_location:
-        search_location = search_location.capitalize()
-        query = query.filter(Vacancy.locations.contains(search_location))
+        query = query.filter(Vacancy.locations.contains(search_location.capitalize()))
 
     # Фильтр по удаленной работе
     if distant_work:
@@ -90,7 +81,6 @@ def vacancies():
     if salary_from:
         query = query.filter(or_(Vacancy.salary_from >= salary_from, Vacancy.salary_to >= salary_from))
 
-
     # Применяем сортировку
     if sort == 'newest':
         query = query.order_by(desc(Vacancy.publication_at))
@@ -114,9 +104,6 @@ def vacancies():
     total_vacancies = query.count()
     total_pages = (total_vacancies + per_page - 1) // per_page
 
-
-    # print(request.args)
-
     return render_template(
         'vacancies.html',
         vacancies=vacancies,
@@ -135,6 +122,7 @@ def vacancy(vacancy_id):
     if vacancy is None:
         return "Vacancy not found", 404
     return render_template('vacancy.html', vacancy=vacancy, current_page='vacancy')
+
 
 @app.route('/companies')
 def companies():
@@ -156,6 +144,7 @@ def companies():
         current_page='companies'
     )
 
+
 @app.route('/company/<int:company_id>')
 def company(company_id):
     company = session.query(Company).filter_by(company_id=company_id).first()
@@ -165,4 +154,4 @@ def company(company_id):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
