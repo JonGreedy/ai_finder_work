@@ -21,7 +21,7 @@ class Vacancy(Base):
     experience = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=datetime.now)
     publication_at = Column(DateTime, default=datetime.now)
-    locations = Column(String, nullable=True)  # Хранение местоположений в формате JSON
+    locations = Column(Text, nullable=True)  # Хранение местоположений в формате JSON
     company_id = Column(Integer, ForeignKey('companies.company_id'))
     company = relationship("Company", back_populates="vacancies")
 

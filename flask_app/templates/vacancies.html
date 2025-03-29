@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Vacancies{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('vacancies') }}" method="get">
+    <div class="row g-3 align-items-center mb-4">
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" name="search" class="form-control" placeholder="Search vacancies"
+                    value="{{ request.args.get('search', '') }}">
+            </div>
+        </div>
+        <div class="col">
+            <div class="input-group">
+                <input type="text" name="search_location" class="form-control" placeholder="Search location"
+                    value="{{ request.args.get('search_location', '') }}">
+            </div>
+        </div>
+        <div class="col-auto">
+            <select name="per_page" id="per_page" class="form-control form-control-sm" onchange="this.form.submit()">
+                <option value="5" {% if per_page==5 %}selected{% endif %}>5</option>
+                <option value="10" {% if per_page==10 %}selected{% endif %}>10</option>
+                <option value="15" {% if per_page==15 %}selected{% endif %}>15</option>
+                <option value="20" {% if per_page==20 %}selected{% endif %}>20</option>
+                <option value="35" {% if per_page==35 %}selected{% endif %}>35</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Боковая панель фильтров -->
+        <div class="col-md-3 mb-4">
+            <div class="mb-3">
+                <span class="text-muted">Найдено {{ total_vacancies }} вакансий</span>
+            </div>
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Фильтры</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Сортировка</label>
+                        <select name="sort" class="form-control form-control-sm w-100">
+                            <option value="relevance" {% if request.args.get('sort')=='relevance' %}selected{% endif %}>
+                                По релевантности</option>
+                            <option value="newest" {% if request.args.get('sort')=='newest' %}selected{% endif %}>По
+                                дате (сначала новые)</option>
+                            <option value="oldest" {% if request.args.get('sort')=='oldest' %}selected{% endif %}>По
+                                дате (сначала старые)</option>
+                            <option value="salary_desc" {% if request.args.get('sort')=='salary_desc' %}selected{% endif
+                                %}>По убыванию зарплаты</option>
+                            <option value="salary_asc" {% if request.args.get('sort')=='salary_asc' %}selected{% endif
+                                %}>По возрастанию зарплаты</option>
+                        </select>
+                    </div>
+                    <hr/>
+                    <!-- Фильтр по зарплате -->
+                    <div class="mb-3">
+                        <label class="form-label">Зарплата</label>
+                        <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">От</span>
+                            </div>
+                            <input type="number" name="salary_from" class="form-control" placeholder="Мин"
+                                value="{{ request.args.get('salary_from') }}" min="0" step="1000">
+                        </div>
+                    </div>
+                    <hr/>
+                    <!-- Фильтр удаленной работы -->
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="distant_work" value="true"
+                                id="distant_work" {% if request.args.get('distant_work')=="true" %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="distant_work">Удаленная работа</label>
+                        </div>
+                    </div>
+                    <hr/>
+                    <!-- Фильтр по типу занятости -->
+                    <div class="mb-3">
+                        <label class="form-label">Занятость</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="employment_type" value="full_time"
+                                id="full_time" {% if 'full_time' in request.args.getlist('employment_type') %}checked{% endif
+                                %}>
+                            <label class="form-check-label d-block" for="full_time">Полный день</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="employment_type" value="part_time"
+                                id="part_time" {% if 'part_time' in request.args.getlist('employment_type') %}checked{% endif
+                                %}>
+                            <label class="form-check-label d-block" for="part_time">Частичная занятость</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="employment_type" value="project"
+                                id="project" {% if 'project' in request.args.getlist('employment_type') %}checked{%
+                                endif %}>
+                            <label class="form-check-label d-block" for="project">Подработка</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="employment_type" value="non_standard"
+                                id="non_standard" {% if 'non_standard' in request.args.getlist('employment_type')
+                                %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="non_standard">Нестандартный график</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="employment_type" value="internship"
+                                id="internship" {% if 'internship' in request.args.getlist('employment_type')
+                                %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="internship">Стажировка</label>
+                        </div>
+                    </div>
+                    <hr/>
+
+                    <!-- Фильтр по опыту работы -->
+                    <div class="mb-3">
+                        <label class="form-label">Опыт</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="experience" value="no_experience"
+                                id="no_experience" {% if 'no_experience' in request.args.getlist('experience')
+                                %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="no_experience">Без опыта</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="experience" value="up_to_one_year"
+                                id="up_to_one_year" {% if 'up_to_one_year' in request.args.getlist('experience')
+                                %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="up_to_one_year">Опыт до 1 года</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="experience" value="year_minimum"
+                                id="year_minimum" {% if 'year_minimum' in request.args.getlist('experience') %}checked{%
+                                endif %}>
+                            <label class="form-check-label d-block" for="year_minimum">Опыт от 1 года</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="experience" value="two_years_more"
+                                id="two_years_more" {% if 'two_years_more' in request.args.getlist('experience')
+                                %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="two_years_more">Опыт от 2 лет</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="experience" value="three_years_more"
+                                id="three_years_more" {% if 'three_years_more' in request.args.getlist('experience')
+                                %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="three_years_more">Опыт от 3 лет</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="experience" value="five_years_more"
+                                id="five_years_more" {% if 'five_years_more' in request.args.getlist('experience')
+                                %}checked{% endif %}>
+                            <label class="form-check-label d-block" for="five_years_more">Опыт от 5 лет</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mb-3 w-100">Применить</button>
+                    <div>
+                        <a href="{{ url_for('vacancies') }}" class="btn btn-outline-secondary btn-sm w-100">Очистить все
+                            фильтры</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список вакансий -->
+        <div class="col-md-9">
+            <div class="row row-cols-1">
+                {% for vacancy in vacancies %}
+                <div class="col-12 mb-4">
+                    <div class="card h-100 hover-shadow">
+
+                        <div class="card-body">
+                            <a href="{{ url_for('vacancy', vacancy_id=vacancy.vacancy_id) }}"
+                                class="text-decoration-none">
+                                <h4 class="card-title text-primary font-weight-bold">
+                                    {{ vacancy.title|capitalize }}
+                                </h4>
+                            </a>
+
+                            <!-- Блок зарплаты -->
+                            {% if vacancy.salary_to == 0 and vacancy.salary_from == 0 %}
+                            <p class="card-text font-weight-bold mb-1">По договоренности</p>
+                            {% endif %}
+                            {% if vacancy.salary_to or vacancy.salary_from %}
+                            <p class="card-text font-weight-bold mb-1">
+                                {% if vacancy.salary_from %}
+                                {{ '{:,.0f}'.format(vacancy.salary_from).replace(',', ' ') }}
+                                {% endif %}
+                                {% if vacancy.salary_from and vacancy.salary_to %} - {% endif %}
+                                {% if vacancy.salary_to %}
+                                {{ '{:,.0f}'.format(vacancy.salary_to).replace(',', ' ') }}
+                                {% endif %}
+                                {{ vacancy.currency_symbol }}
+                            </p>
+                            {% endif %}
+
+                            <!-- Блок с тегами (опыт, тип работы и т.д.) -->
+                            <p class="card-text text-muted mb-2">
+                                <span class="badge badge-pill badge-secondary">{{ vacancy.employment_type }}</span>
+                                <span class="badge badge-pill badge-secondary">{{ vacancy.distant_work }}</span>
+                                <span class="badge badge-pill badge-secondary">{{ vacancy.experience }}</span>
+                            </p>
+
+                            <!-- Ссылка на компанию (отдельно кликабельная) -->
+                            <div class="company-title mb-2">
+                                <a href="{{ url_for('company', company_id=vacancy.company_id) }}"
+                                    class="text-decoration-none">
+                                    {% if vacancy.company.logo %}
+                                    <img src="{{ vacancy.company.logo }}" alt="{{ vacancy.company.title }}" width="16"
+                                        height="16" class="img-fluid rounded-circle mr-1">
+                                    {% else %}
+                                    <i class="fa-regular fa-building rounded-circle mr-1"></i>
+                                    {% endif %}
+                                    <span>{{ vacancy.company.title }}</span>
+                                </a>
+                            </div>
+
+                            <!-- Локации (если есть) -->
+                            {% if vacancy.locations_list %}
+                            <p class="card-text text-muted">
+                                {% for location in vacancy.locations_list %}
+                                <span class="badge">{{ location.name }}</span>
+                                {% endfor %}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</form>
+<!-- Улучшенная пагинация -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        <!-- Получаем все параметры кроме page -->
+        {% set base_params = {} %}
+        {% for key in request.args %}
+        {% if key != 'page' %}
+        {% if key in ['experience', 'employment_type'] %}
+        {% set _ = base_params.update({key: request.args.getlist(key)}) %}
+        {% else %}
+        {% set _ = base_params.update({key: request.args.get(key)}) %}
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+        <!-- Кнопка "Первая" -->
+        <li class="page-item {% if page == 1 %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('vacancies', page=1, **base_params) }}" aria-label="First">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+            </a>
+        </li>
+
+        <!-- Кнопка "Назад" -->
+        <li class="page-item {% if page == 1 %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('vacancies', page=page-1, **base_params) }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+        <!-- Динамический диапазон страниц -->
+        {% set start_page = [1, page-2]|max %}
+        {% set end_page = [total_pages, start_page+4]|min %}
+
+        {% if end_page - start_page < 4 %} {% set start_page=[1, end_page-4]|max %} {% endif %} {% for p in
+            range(start_page, end_page+1) %} <li class="page-item {% if p == page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('vacancies', page=p, **base_params) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+
+            <!-- Кнопка "Вперед" -->
+            <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('vacancies', page=page+1, **base_params) }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+
+            <!-- Кнопка "Последняя" -->
+            <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('vacancies', page=total_pages, **base_params) }}"
+                    aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+    </ul>
+</nav>
+
+{% endblock %}

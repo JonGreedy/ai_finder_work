@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for
-from sqlalchemy import create_engine, desc, asc, or_, and_, func
+from sqlalchemy import create_engine, desc, asc, or_, func, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import nulls_last
 
@@ -21,17 +21,22 @@ Session = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 session = Session()
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def home():
+    return render_template('index.html', current_page='home')
+
+@app.route('/vacancies')
+def vacancies():
     # Получаем параметры запроса
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     search = request.args.get('search', '').strip()
 
-    sort = request.args.get('sort', 'newest')  # По умолчанию сортируем по новым
+    search_location = request.args.get('search_location', '').strip()
+
+    sort = request.args.get('sort', 'relevance')  # По умолчанию сортируем по новым
     # Фильтры
     salary_from = request.args.get('salary_from', type=int)
-    salary_to = request.args.get('salary_to', type=int)
 
     distant_work = request.args.get('distant_work')
     employment_types = request.args.getlist('employment_type')
@@ -44,6 +49,13 @@ def home():
     # Применяем поиск
     if search:
         query = query.filter(func.lower(Vacancy.title).contains(search.lower()))
+
+    # if search_location:
+    #     query = query.filter(func.lower(Vacancy.locations).contains(search_location.lower()))
+
+    if search_location:
+        search_location = search_location.capitalize()
+        query = query.filter(Vacancy.locations.contains(search_location))
 
     # Фильтр по удаленной работе
     if distant_work:
@@ -75,12 +87,9 @@ def home():
             query = query.filter(or_(*experience_conditions))
 
     # Применяем фильтр по зарплате
-    if salary_from is not None and salary_to is not None:
-        query = query.filter(and_(Vacancy.salary_from >= salary_from, Vacancy.salary_to <= salary_to))
-    elif salary_from is not None:
-        query = query.filter(Vacancy.salary_from >= salary_from)
-    elif salary_to is not None:
-        query = query.filter(Vacancy.salary_to <= salary_to)
+    if salary_from:
+        query = query.filter(or_(Vacancy.salary_from >= salary_from, Vacancy.salary_to >= salary_from))
+
 
     # Применяем сортировку
     if sort == 'newest':
@@ -98,7 +107,7 @@ def home():
             nulls_last(asc(Vacancy.salary_to))
         )
     else:  # relevance или по умолчанию
-        query = query.order_by(desc(Vacancy.publication_at))
+        query = query.order_by(desc(Vacancy.created_at))
 
     # Получаем данные с пагинацией
     vacancies = query.offset(offset).limit(per_page).all()
@@ -109,7 +118,7 @@ def home():
     # print(request.args)
 
     return render_template(
-        'index.html',
+        'vacancies.html',
         vacancies=vacancies,
         page=page,
         per_page=per_page,

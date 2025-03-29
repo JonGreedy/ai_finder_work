@@ -23,13 +23,16 @@
 <div class="row">
     {% for company in companies %}
     <div class="col-12 mb-4">
-        <a href="{{ url_for('company', company_id=company.company_id) }}" class="text-decoration-none text-dark stretched-link">
+        <a href="{{ url_for('company', company_id=company.company_id) }}" class="text-decoration-none text-dark">
             <div class="card h-100 hover-shadow" style="min-height: 150px;">
                 <div class="card-body">
                     <h5 class="card-title text-primary font-weight-bold">
                         <div>
                             {% if company.logo %}
-                                <img class="img-fluid rounded-circle mr-1" src="{{ company.logo }}" alt="{{ company.title }}" width="32" height="32">
+                            <img class="img-fluid rounded-circle mr-1" src="{{ company.logo }}"
+                                alt="{{ company.title }}" width="32" height="32">
+                            {% else %}
+                            <i class="img-fluid rounded-circle mr-1 fa-regular fa-building"></i>
                             {% endif %}
                             <span>{{ company.title }}</span>
                         </div>
@@ -38,7 +41,7 @@
                     <ul class="list-unstyled mt-3 text-muted">
                         {% if company.contacts_dict.phone %}
                         <li class="mb-2">
-                            <i class="fa-regular fa-phone"></i> {{ company.contacts_dict.phone }}
+                            <i class="fa-solid fa-phone"></i> {{ company.contacts_dict.phone }}
                         </li>
                         {% endif %}
                         {% if company.contacts_dict.email %}
@@ -109,8 +112,4 @@
             </li>
     </ul>
 </nav>
-<!-- Информация о странице -->
-<div class="text-center mt-2">
-    Страница {{ page }} из {{ total_pages }} | Показано {{ companies|length }} из {{ total_companies }} компаний
-</div>
 {% endblock %}
